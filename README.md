@@ -221,9 +221,9 @@ pip install -e ".[dev]"
 pytest -q            # unit tests: fully mocked, no network, no database
 ```
 
-`scripts/smoke_test.py` runs a handful of real queries end to end against a live
+`scripts/smoke.py` runs a handful of real queries end to end against a live
 backend. It is **not** part of the automated test suite — it needs a real
-`FREECASE_MCP_KEY` and a reachable backend. Run `python scripts/smoke_test.py
+`FREECASE_MCP_KEY` and a reachable backend. Run `python scripts/smoke.py
 --help` for details.
 
 ---
