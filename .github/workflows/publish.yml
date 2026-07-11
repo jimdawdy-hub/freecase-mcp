@@ -1,0 +1,49 @@
+name: Publish to PyPI
+
+# GATED publishing. This workflow does NOT run on ordinary pushes. It fires only
+# when a maintainer explicitly triggers it (workflow_dispatch) or pushes a
+# version tag (v*). Publishing additionally requires configuring a PyPI Trusted
+# Publisher for this repo/workflow first — until then, the publish step has no
+# credentials and will fail closed rather than publish. Nothing here publishes
+# automatically.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: Build distributions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build sdist + wheel
+        run: |
+          pip install build
+          python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    # A protected environment adds a manual approval gate before anything is
+    # pushed to PyPI. Create the 'pypi' environment in repo settings to arm it.
+    environment: pypi
+    permissions:
+      id-token: write # PyPI Trusted Publishing (OIDC) — no long-lived token
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@release/v1

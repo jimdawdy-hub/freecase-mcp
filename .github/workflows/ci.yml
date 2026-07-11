@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Tests (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install (with dev extras)
+        run: pip install -e ".[dev]"
+
+      - name: Run tests
+        # Env deliberately unset: the whole suite is mocked, proving the
+        # connector needs no network, no DB, and no connector key to test.
+        run: python -m pytest -q
+        env:
+          FREECASE_MCP_KEY: ""
+          FREECASE_API_BASE: ""
