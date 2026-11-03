@@ -1,4 +1,4 @@
-"""get_citations — parsed reporter citations for one case (public, no key)."""
+"""get_citations — parsed reporter citations for one case (subscriber connector key required)."""
 from __future__ import annotations
 
 from typing import Any

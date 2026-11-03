@@ -20,12 +20,13 @@ Five tools:
 |------|:---:|------|
 | `search_cases` | Yes | Full-text case-law search (Illinois, federal, SCOTUS, 7th Circuit). Returns ranked results with citations, courts, dates, and snippets. |
 | `search_statutes` | Yes | Statute search by citation (`625 ILCS 5/11-501`) or plain text, across the launched jurisdictions. |
-| `get_opinion` | No | Full text of one opinion by `cluster_id`, plus its cited-by list and parentheticals. |
-| `get_statute` | No | Full text of one statute section by `section_id`, including repealed/renumbered history. |
-| `get_citations` | No | The parsed reporter citations for one case. |
+| `get_opinion` | Yes | Full text of one opinion by `cluster_id`, plus its cited-by list and parentheticals. |
+| `get_statute` | Yes | Full text of one statute section by `section_id`, including repealed/renumbered history. |
+| `get_citations` | Yes | The parsed reporter citations for one case. |
 
-The two `search_*` tools require a **connector key**. The three `get_*` tools
-are public and work with no key at all.
+All five tools require a **connector key** owned by an account with Solo or
+equivalent Founder, Student, or approved complimentary beta benefits. Usage limits
+apply. Public case and statute webpages and free website basic search remain available.
 
 ---
 
@@ -50,7 +51,7 @@ Install `uv` once:
 
 ## Get your connector key
 
-1. Sign in at [freecase.ai](https://freecase.ai) and open your **account page**.
+1. Sign in at [freecase.ai](https://freecase.ai) with an eligible account and open your **account page**. See [plans](https://freecase.ai/pricing).
 2. In the **Connector keys** section, click **Generate key**.
 3. Copy the key — it is shown **once** and starts with `fc_mcp_`.
 
@@ -205,7 +206,7 @@ is installed.
 
 | Env var | Required | Default | Notes |
 |---------|:---:|---------|-------|
-| `FREECASE_MCP_KEY` | For search only | *(none)* | Your connector key (`fc_mcp_...`). The `get_*` tools work without it. |
+| `FREECASE_MCP_KEY` | Yes | *(none)* | Your subscriber connector key (`fc_mcp_...`), used by all five tools. |
 | `FREECASE_API_BASE` | No | `https://api.freecase.ai` | Override only for local/staging backends. |
 
 Both are read at call time, so a host that injects env vars late still works.
@@ -255,5 +256,14 @@ Your agent  ──stdio──▶  freecase-mcp (this package)  ──HTTPS──
 
 The connector holds no legal data and no database credentials. All search,
 ranking, and query handling happen on the Freecase backend; this package just
-forwards requests (adding your connector key on the two search tools) and
+forwards requests (adding your connector key on all five tools) and
 returns the results.
+
+## Release notes
+
+### 0.2.0
+
+All five tools send the connector key. Update existing installations before the
+backend enables subscriber-only API retrieval; older versions omit the key on
+record reads. A 403 explains missing subscriber benefits, while a 401 identifies
+an invalid or revoked key. Complimentary beta access must be approved by Freecase.

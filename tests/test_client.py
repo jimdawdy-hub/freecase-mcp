@@ -14,14 +14,19 @@ from freecase_mcp.errors import (
 )
 
 
-async def test_public_call_parses_200_and_sends_no_auth(mock_backend, monkeypatch):
-    monkeypatch.setenv("FREECASE_MCP_KEY", "fc_mcp_live")  # set, but public path
+@pytest.fixture(autouse=True)
+def connector_key(monkeypatch, _clean_env):
+    monkeypatch.setenv("FREECASE_MCP_KEY", "fc_mcp_test_only")
+
+
+async def test_retrieval_parses_200_and_sends_auth(mock_backend, monkeypatch):
+    monkeypatch.setenv("FREECASE_MCP_KEY", "fc_mcp_live")
     mock_backend.json({"cluster_id": 42, "citations": []})
 
     result = await client.citations(42)
 
     assert result == {"cluster_id": 42, "citations": []}
-    assert "Authorization" not in mock_backend.last_request.headers
+    assert mock_backend.last_request.headers["Authorization"] == "Bearer fc_mcp_live"
     assert mock_backend.last_request.url.path == "/citations/42"
 
 
@@ -34,7 +39,8 @@ async def test_search_attaches_bearer_key(mock_backend, monkeypatch):
     assert mock_backend.last_request.headers["Authorization"] == "Bearer fc_mcp_secret"
 
 
-async def test_search_without_key_raises_before_any_request(mock_backend):
+async def test_search_without_key_raises_before_any_request(mock_backend, monkeypatch):
+    monkeypatch.delenv("FREECASE_MCP_KEY")
     # No key set (autouse clean env). Must fail BEFORE any HTTP call.
     with pytest.raises(ConnectorKeyMissingError):
         await client.search({"q": "x"}, rerank=False)
@@ -93,3 +99,18 @@ async def test_api_base_override_is_used(mock_backend, monkeypatch):
 
     await client.citations(7)
     assert str(mock_backend.last_request.url).startswith("http://localhost:8000/")
+
+
+@pytest.mark.parametrize("call", [client.opinion, client.statute, client.citations])
+async def test_each_retrieval_sends_key(mock_backend, call):
+    mock_backend.json({})
+    await call(42)
+    assert mock_backend.last_request.headers["Authorization"] == "Bearer fc_mcp_test_only"
+
+
+@pytest.mark.parametrize("call", [client.opinion, client.statute, client.citations])
+async def test_each_retrieval_refuses_missing_key_before_network(mock_backend, monkeypatch, call):
+    monkeypatch.delenv("FREECASE_MCP_KEY")
+    with pytest.raises(ConnectorKeyMissingError):
+        await call(42)
+    assert not mock_backend.requests

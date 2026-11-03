@@ -10,6 +10,11 @@ from freecase_mcp.tools.get_opinion import get_opinion
 from freecase_mcp.tools.get_statute import get_statute
 
 
+@pytest.fixture(autouse=True)
+def connector_key(monkeypatch, _clean_env):
+    monkeypatch.setenv("FREECASE_MCP_KEY", "fc_mcp_test_only")
+
+
 async def test_get_opinion_returns_documented_fields(mock_backend):
     body = {
         "cluster_id": 100,

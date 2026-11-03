@@ -1,4 +1,4 @@
-"""get_statute — full text of one statute section (public, no key)."""
+"""get_statute — full text of one statute section (subscriber connector key required)."""
 from __future__ import annotations
 
 from typing import Any

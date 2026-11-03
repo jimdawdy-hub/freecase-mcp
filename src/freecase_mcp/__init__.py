@@ -6,4 +6,4 @@ statutes, and citation lists — all over HTTPS against the public Freecase
 backend. This package never connects to a database (KTD1).
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
