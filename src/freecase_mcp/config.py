@@ -35,8 +35,7 @@ def api_base() -> str:
 def mcp_key() -> str | None:
     """Return the connector key from ``FREECASE_MCP_KEY``, or ``None`` if unset.
 
-    No validation happens here — public tools don't need a key, and the search
-    tools raise a clear, actionable error at call time when it's missing (U12).
+    No validation happens here — tools raise a clear, actionable error at call time when it's missing (U12).
     A blank/whitespace-only value is treated the same as unset.
     """
     raw = os.environ.get("FREECASE_MCP_KEY", "").strip()

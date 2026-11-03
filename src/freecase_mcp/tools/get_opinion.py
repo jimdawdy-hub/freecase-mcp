@@ -1,4 +1,4 @@
-"""get_opinion — full text of one court opinion (public, no key)."""
+"""get_opinion — full text of one court opinion (subscriber connector key required)."""
 from __future__ import annotations
 
 from typing import Any

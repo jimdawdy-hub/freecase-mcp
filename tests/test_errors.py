@@ -76,3 +76,15 @@ def test_non_json_body_is_tolerated():
     assert err.status_code == 502
     # Doesn't raise while building; produces some message.
     assert str(err)
+
+
+def test_subscription_denial_preserves_backend_guidance():
+    response = httpx.Response(403, json={"error": "subscription_required", "message": "Your Solo benefits expired; renew your plan."})
+    error = error_from_response(response)
+    assert str(error) == "Your Solo benefits expired; renew your plan."
+    assert error.code == "subscription_required"
+
+
+def test_subscription_denial_has_actionable_fallback():
+    error = error_from_response(httpx.Response(403))
+    assert "Solo" in str(error) and "complimentary beta" in str(error)

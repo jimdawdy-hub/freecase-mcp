@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "freecase-mcp"
-version = "0.1.0"
+version = "0.2.0"
 description = "MCP connector for searching the Freecase legal corpus (case law + statutes) from AI agents."
 readme = "README.md"
 requires-python = ">=3.10"

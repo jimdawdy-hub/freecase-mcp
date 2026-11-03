@@ -26,18 +26,18 @@ class FreecaseError(Exception):
 
 
 class ConnectorKeyMissingError(FreecaseError):
-    """A search tool was called but ``FREECASE_MCP_KEY`` is not set.
+    """A tool was called but ``FREECASE_MCP_KEY`` is not set.
 
-    Raised *before* any network request — an unauthenticated search would only
+    Raised *before* any network request — an unauthenticated request would only
     earn a 401 anyway, so we fail early with actionable guidance instead.
     """
 
     def __init__(self) -> None:
         super().__init__(
-            "No Freecase connector key is configured, so search is unavailable. "
+            "No Freecase connector key is configured. All five tools require a key. "
             "Set the FREECASE_MCP_KEY environment variable to a key generated on "
-            "your Freecase account page (it starts with 'fc_mcp_'). The "
-            "get_opinion, get_statute, and get_citations tools work without a key."
+            "your Freecase account page (it starts with 'fc_mcp_'). MCP access requires "
+            "Solo or equivalent Founder, Student, or approved complimentary beta benefits."
         )
 
 
@@ -133,9 +133,10 @@ def error_from_response(response: httpx.Response) -> FreecaseApiError:
             "account page and update FREECASE_MCP_KEY."
         )
     elif status == 403:
-        message = (
-            "Freecase refused this request (HTTP 403). Your connector key may not "
-            "have access to this resource."
+        message = backend_message or (
+            "MCP access requires Solo or equivalent Founder, Student, or approved "
+            "complimentary beta benefits (HTTP 403). Check your plan at "
+            "https://freecase.ai/pricing; replacing the key will not restore benefits."
         )
     elif status == 404:
         # Public endpoints: {"detail": "Opinion not found"} etc.
@@ -150,7 +151,7 @@ def error_from_response(response: httpx.Response) -> FreecaseApiError:
         message = (
             "Freecase rate-limited this connector key (HTTP 429)."
             + hint
-            + " Each key has a per-minute and per-day search budget."
+            + " Each key has a per-minute and per-day request budget."
         )
     elif status == 422:
         # Validation / query-too-broad. The backend's own message is the useful
